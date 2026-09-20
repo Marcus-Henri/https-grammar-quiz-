@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import StartScreen from './components/StartScreen';
 import QuizScreen from './components/QuizScreen';
 import ResultScreen from './components/ResultScreen';
@@ -8,7 +8,7 @@ import CheckpointScreen from './components/CheckpointScreen';
 import { Heart } from 'lucide-react';
 
 import clickSound from './assets/sounds/click_v3.wav';
-// import musicSound from './assets/sounds/music.mp3';
+import musicSound from './assets/sounds/music.mp3';
 import correctSound from './assets/sounds/correct_v3.wav';
 import incorrectSound from './assets/sounds/incorrect_v3.wav';
 import fanfareSound from './assets/sounds/fanfare_v3.wav';
@@ -84,6 +84,8 @@ function App() {
         playClick();
     };
 
+    const musicStartedRef = useRef(false);
+
     // Manage Background Music & Intensity
     useEffect(() => {
         const bgMusic = document.getElementById('bg-music');
@@ -93,11 +95,14 @@ function App() {
             bgMusic.playbackRate = speed;
             if (isMuted) {
                 bgMusic.pause();
+            } else if (musicStartedRef.current && bgMusic.paused) {
+                bgMusic.play().catch(() => {});
             }
         }
     }, [isMuted, currentStreak]);
 
     const startMusic = () => {
+        musicStartedRef.current = true;
         if (!isMuted) {
             const bgMusic = document.getElementById('bg-music');
             if (bgMusic) {
@@ -206,7 +211,7 @@ function App() {
     return (
         <div className="antialiased font-display min-h-screen flex items-center justify-center p-4">
             <div className="snake-border w-full max-w-md">
-                {/* <audio id="bg-music" loop src={musicSound} /> */}
+                <audio id="bg-music" loop src={musicSound} />
                 {currentScreen === 'start' && <StartScreen onStart={handleStart} onDailyStart={handleDailyStart} dailyStats={dailyStats} topScores={topScores} isMuted={isMuted} onToggleMute={toggleMute} playClick={playClick} isSupporter={isSupporter} />}
                 {currentScreen === 'quiz' && (
                     <QuizScreen
